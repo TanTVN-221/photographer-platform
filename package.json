@@ -1,0 +1,15 @@
+{
+  "name": "photographer-platform",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Photographer Google Drive workspace and client proofing platform",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm -r --parallel --if-present dev",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck"
+  }
+}
+
