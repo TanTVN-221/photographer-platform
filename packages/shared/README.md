@@ -15,5 +15,16 @@ Planned browser-safe shared contracts package.
 - Do not expose Prisma models directly as public API DTOs.
 - Do not include secrets, server-only provider clients, or database access.
 
-Status: directory placeholder; contracts have not been implemented.
+## Implemented
 
+- Immutable source-image format registry covering guaranteed and best-effort formats.
+- Deterministic Drive filename/MIME discovery classifier.
+- Explicit browser-native, converted-raster, camera-RAW, and extended-raster categories.
+- Unit coverage for aliases, generic MIME types, metadata conflicts, unsupported inputs, and registry uniqueness.
+- Strict photographer session and narrow Drive connection DTOs/cookie names;
+  no OAuth credential is part of a browser-safe contract.
+
+Classification is not content validation. The future media-processing boundary must inspect source bytes before invoking a decoder.
+
+Status: media-format and current API contract foundation implemented; contracts
+remain intentionally narrow as private workspace features expand.

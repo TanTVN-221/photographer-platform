@@ -14,5 +14,4 @@ Planned reusable React presentation package.
 - Preserve keyboard, screen-reader, focus, reduced-motion, and touch usability.
 - Avoid embedding product-specific business rules in generic components.
 
-Status: directory placeholder; UI implementation has not started.
-
+Status: the package now provides a reusable, accessible `StatusPill` presentation component used by `apps/web`. Broader UI primitives remain future work.

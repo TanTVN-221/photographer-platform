@@ -19,6 +19,7 @@ The MVP proves the product's two highest-risk claims:
 - Next.js web app and Express API.
 - PostgreSQL and Prisma migrations.
 - Shared Zod DTOs and common UI package.
+- English/Vietnamese web copy with an accessible, persistent language switch.
 - Local development environment and documented environment variables.
 - Basic automated tests, linting, type checking, and CI.
 
@@ -34,7 +35,9 @@ The MVP proves the product's two highest-risk claims:
 
 - Select or provide one accessible Drive folder.
 - Direct-child images only.
-- JPEG, PNG, and WebP only.
+- Guaranteed JPEG/JFIF, PNG/APNG, WebP, AVIF, GIF, HEIC/HEIF/HIF, TIFF, DNG, CR2/CR3, NEF/NRW, ARW, RAF, ORF, RW2, and PEF source recognition.
+- Explicit processing status for recognized sources whose preview is pending, unsupported by the deployed decoder, or failed.
+- Browser-safe static thumbnail and preview derivatives for non-browser-native sources.
 - Complete Drive pagination.
 - Local metadata indexing in PostgreSQL.
 - Natural filename order.
@@ -58,7 +61,7 @@ The MVP proves the product's two highest-risk claims:
 - Optional password protection.
 - Paginated, responsive image grid.
 - Lazy loading and reserved aspect ratio.
-- Appropriate thumbnail/preview delivery through an image-provider contract.
+- Appropriate thumbnail/preview delivery through an image-provider contract, including generated derivatives when Drive cannot provide a durable browser-safe image.
 - Lightbox with desktop keyboard and mobile-friendly controls.
 - Select/deselect and visible count/limit.
 - Comment on a selected photo.
@@ -79,13 +82,14 @@ The MVP proves the product's two highest-risk claims:
 - Recursive subfolder traversal and photo sections.
 - General-purpose Drive replacement for every file type.
 - Full folder create/rename/move/delete/upload UI; these belong to the next workspace phase after proofing MVP validation.
-- HEIC, TIFF, RAW, video, or server-side preview conversion.
+- Video preview conversion or source-image editing.
+- Pixel-perfect RAW development equivalent to Lightroom or a camera-vendor renderer.
 - Client accounts, multiple clients, or multiple selection lists per album.
 - Email, SMS, or WhatsApp notifications.
 - Guest download management.
 - Custom branding, logo, watermark, or custom domain.
 - Tags, advanced search, analytics, face recognition, or face search.
-- R2/CDN migration.
+- Migration of original photographs from Drive to R2/CDN. A bounded derivative store or cache is permitted for generated thumbnails and previews.
 - Teams, roles, billing, subscription plans, or admin console.
 - Native mobile apps.
 - Microservices, Redis, queues, Elasticsearch, or Kubernetes unless a measured blocker forces a decision change.
@@ -107,4 +111,3 @@ The MVP is ready for a private pilot only when:
 ## Deferred product decision
 
 The exact production image-delivery mechanism is a Phase 1 architecture gate. A prototype must compare Drive-provided thumbnail links, a controlled thumbnail proxy/cache, and the future CDN path before the MVP implementation locks the contract.
-

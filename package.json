@@ -3,13 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "description": "Photographer Google Drive workspace and client proofing platform",
-  "packageManager": "pnpm@10.0.0",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "build": "pnpm -r --if-present build",
-    "dev": "pnpm -r --parallel --if-present dev",
-    "lint": "pnpm -r --if-present lint",
-    "test": "pnpm -r --if-present test",
+    "dev": "pnpm --filter @photographer-platform/shared build && pnpm --filter @photographer-platform/ui build && pnpm --filter @photographer-platform/api --filter @photographer-platform/web --parallel dev",
+    "lint": "pnpm -r --if-present lint && eslint scripts",
+    "test": "vitest run",
+    "test:postgres": "node scripts/test-postgres.mjs",
     "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "eslint": "^10.0.0",
+    "typescript-eslint": "^8.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.0"
   }
 }
-

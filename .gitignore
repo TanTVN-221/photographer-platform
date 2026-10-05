@@ -1,11 +1,16 @@
 node_modules/
+.pnpm-store/
 .next/
 dist/
+packages/database/src/generated/
+*.tsbuildinfo
+apps/web/next-env.d.ts
 coverage/
 .turbo/
 .env
 .env.*
 !.env.example
+/ca.pem
+/.local/
 *.log
 .DS_Store
-

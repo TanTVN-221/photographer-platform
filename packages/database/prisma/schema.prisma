@@ -1,0 +1,214 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AlbumStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PreviewStatus {
+  PENDING
+  READY
+  UNSUPPORTED_VARIANT
+  FAILED
+}
+
+enum SelectionStatus {
+  DRAFT
+  SUBMITTED
+  LOCKED
+}
+
+enum SyncRunStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
+}
+
+enum DriveConnectionStatus {
+  CONNECTED
+  REAUTH_REQUIRED
+  DISCONNECTED
+}
+
+model Photographer {
+  id               String                @id @default(cuid())
+  email            String                @unique
+  googleSubject    String?               @unique
+  displayName      String?
+  createdAt        DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime              @updatedAt @db.Timestamptz(3)
+  driveConnections DriveConnection[]
+  albums           Album[]
+  sessions         PhotographerSession[]
+}
+
+model PhotographerSession {
+  tokenHash String       @id
+  ownerId   String
+  createdAt DateTime     @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime     @db.Timestamptz(3)
+  owner     Photographer @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([expiresAt])
+}
+
+model DriveConnection {
+  id                     String                @id @default(cuid())
+  ownerId                String
+  googleAccountId        String
+  googleAccountEmail     String?
+  status                 DriveConnectionStatus @default(DISCONNECTED)
+  grantedScopes          String[]              @default([])
+  // AES-256-GCM ciphertext only; never write a plaintext refresh token.
+  refreshTokenCiphertext Bytes?
+  refreshTokenKeyVersion String?
+  connectedAt            DateTime?             @db.Timestamptz(3)
+  disconnectedAt         DateTime?             @db.Timestamptz(3)
+  createdAt              DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime              @updatedAt @db.Timestamptz(3)
+  owner                  Photographer          @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  albums                 Album[]
+
+  @@unique([ownerId, googleAccountId])
+  @@unique([id, ownerId])
+  @@index([ownerId])
+  @@index([ownerId, status])
+}
+
+model Album {
+  id                String                @id @default(cuid())
+  ownerId           String
+  driveConnectionId String
+  driveFolderId     String
+  title             String
+  publicSlug        String                @unique
+  status            AlbumStatus           @default(DRAFT)
+  passwordHash      String?
+  selectionLimit    Int?
+  catalogVersion    Int                   @default(0)
+  lastSyncedAt      DateTime?             @db.Timestamptz(3)
+  publishedAt       DateTime?             @db.Timestamptz(3)
+  archivedAt        DateTime?             @db.Timestamptz(3)
+  createdAt         DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime              @updatedAt @db.Timestamptz(3)
+  owner             Photographer          @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  driveConnection   DriveConnection       @relation(fields: [driveConnectionId, ownerId], references: [id, ownerId], onDelete: Restrict)
+  photos            Photo[]
+  selection         Selection?
+  syncRuns          SyncRun[]
+  creationRequest   AlbumCreationRequest?
+
+  @@unique([id, ownerId])
+  @@index([ownerId, status, updatedAt])
+  @@index([ownerId, createdAt, id])
+  @@index([driveConnectionId, driveFolderId])
+}
+
+// Immutable original creation receipt; request/password plaintext is never stored.
+model AlbumCreationRequest {
+  ownerId      String
+  keyHash      String
+  requestHash  String
+  passwordHash String?
+  publicSlug   String
+  albumId      String   @unique
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  album        Album    @relation(fields: [albumId, ownerId], references: [id, ownerId], onDelete: Restrict)
+
+  @@id([ownerId, keyHash])
+  @@unique([albumId, ownerId])
+}
+
+model Photo {
+  id                String          @id @default(cuid())
+  albumId           String
+  driveFileId       String
+  fileName          String
+  mimeType          String
+  formatId          String
+  width             Int?
+  height            Int?
+  sizeBytes         BigInt?
+  driveCreatedTime  DateTime?       @db.Timestamptz(3)
+  driveModifiedTime DateTime?       @db.Timestamptz(3)
+  driveVersion      String?
+  md5Checksum       String?
+  sourceRevision    String?
+  sortOrder         Int
+  active            Boolean         @default(true)
+  removedAt         DateTime?       @db.Timestamptz(3)
+  previewStatus     PreviewStatus   @default(PENDING)
+  previewRevision   String?
+  previewErrorCode  String?
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(3)
+  album             Album           @relation(fields: [albumId], references: [id], onDelete: Restrict)
+  selectionItems    SelectionItem[]
+
+  @@unique([albumId, driveFileId])
+  @@unique([id, albumId])
+  @@index([albumId, active, sortOrder, id])
+  @@index([albumId, previewStatus])
+}
+
+model Selection {
+  id          String          @id @default(cuid())
+  albumId     String          @unique
+  status      SelectionStatus @default(DRAFT)
+  revision    Int             @default(0)
+  submittedAt DateTime?       @db.Timestamptz(3)
+  lockedAt    DateTime?       @db.Timestamptz(3)
+  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(3)
+  album       Album           @relation(fields: [albumId], references: [id], onDelete: Restrict)
+  items       SelectionItem[]
+
+  @@unique([id, albumId])
+}
+
+model SelectionItem {
+  id          String    @id @default(cuid())
+  selectionId String
+  photoId     String
+  albumId     String
+  comment     String?   @db.Text
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  selection   Selection @relation(fields: [selectionId, albumId], references: [id, albumId], onDelete: Restrict)
+  photo       Photo     @relation(fields: [photoId, albumId], references: [id, albumId], onDelete: Restrict)
+
+  @@unique([selectionId, photoId])
+  @@index([selectionId, createdAt])
+  @@index([photoId, albumId])
+}
+
+model SyncRun {
+  id             String        @id @default(cuid())
+  albumId        String
+  status         SyncRunStatus @default(PENDING)
+  createdCount   Int           @default(0)
+  updatedCount   Int           @default(0)
+  unchangedCount Int           @default(0)
+  removedCount   Int           @default(0)
+  skippedCount   Int           @default(0)
+  failedCount    Int           @default(0)
+  errorCode      String?
+  startedAt      DateTime      @default(now()) @db.Timestamptz(3)
+  finishedAt     DateTime?     @db.Timestamptz(3)
+  album          Album         @relation(fields: [albumId], references: [id], onDelete: Restrict)
+
+  @@index([albumId, startedAt(sort: Desc)])
+  @@index([status, startedAt])
+}

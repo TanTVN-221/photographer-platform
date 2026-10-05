@@ -38,6 +38,8 @@ A future SaaS role that can manage studio members, branding, domains, quotas, su
 
 ## 4. Product areas
 
+The web experience should support English and Vietnamese. Visitors can switch languages explicitly, and their choice persists across visits. Product-facing copy is localized; technical file-format names and filenames retain their original spelling. The home page, gallery password form, and authorized gallery grid, lightbox, and selection controls are localized; future photographer workspace screens must follow this policy when built.
+
 ### 4.1 Photographer workspace
 
 The private workspace should eventually let photographers:
@@ -139,13 +141,19 @@ The MVP scans direct children of the selected folder only. Recursive folders are
 
 ## 7. Supported media
 
-Photographers may store JPEG, PNG, WebP, HEIC, TIFF, and camera RAW formats. For the initial browser gallery, import/display support is limited to:
+The proofing workflow separates source-format support from browser delivery. A supported source can be indexed and represented by a safe browser preview; the product does not edit or replace the original.
 
-- `image/jpeg`
-- `image/png`
-- `image/webp`
+Guaranteed source formats are:
 
-Unsupported files may be ignored with a clear import summary. HEIC, TIFF, RAW preview generation, and video are future capabilities.
+- Web and interchange images: JPEG/JFIF, PNG/APNG, WebP, AVIF, GIF, HEIC/HEIF/HIF, and TIFF.
+- Open RAW: DNG.
+- Major camera RAW families: Canon CR2/CR3, Nikon NEF/NRW, Sony ARW, Fujifilm RAF, Olympus/OM System ORF, Panasonic RW2, and Pentax PEF.
+
+Extended camera RAW formats recognized by the selected decoder may be imported on a best-effort basis. PSD/PSB, JPEG XL, JPEG 2000, and BMP are optional extended formats rather than guaranteed proofing inputs. SVG is not a photographic source format and must not be served directly when supplied by an untrusted user.
+
+Browser-native formats may still be normalized for privacy, caching, orientation, color, or delivery consistency. HEIC, TIFF, RAW, multi-page, and other non-universal sources require a generated thumbnail or preview. Animated and multi-page sources use a representative still frame/page in the proofing MVP. Video remains deferred.
+
+Format recognition during Drive listing is discovery only. The processing boundary must verify the source bytes before decoding and report unsupported camera variants or processing failures without failing the complete album sync.
 
 ## 8. Image delivery
 
@@ -261,7 +269,7 @@ Do not implement these in the first MVP, but avoid designs that make them prohib
 - Multiple selection lists or clients per album
 - Multiple Drive folders per album
 - Recursive folder sections
-- HEIC/TIFF/RAW/video previews
+- Video previews and editing of source image formats
 - Face recognition or face search
 - Cloudflare R2/object-storage/CDN delivery
 - Subscription plans and billing
@@ -275,4 +283,3 @@ Do not implement these in the first MVP, but avoid designs that make them prohib
 - Selection limits remain correct under concurrent requests.
 - A photographer can move from gallery creation to a trustworthy filename export without manual reconciliation.
 - Drive API calls and application bandwidth remain bounded and observable.
-

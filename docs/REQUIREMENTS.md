@@ -17,6 +17,11 @@ The MVP MUST use a modular monolith and MUST NOT require microservices.
 ### PROD-004
 The design SHOULD preserve a path to multi-tenant SaaS operation without implementing billing or teams in the MVP.
 
+## User experience and localization
+
+### UX-001
+The web UI MUST let visitors switch between English and Vietnamese, retain the chosen language across visits, and expose the active language to assistive technology through the document language and accessible controls. English is the fallback when no valid preference exists.
+
 ## Authentication and accounts
 
 ### AUTH-001
@@ -64,7 +69,7 @@ Synchronization MUST preserve selection history whenever the referenced photo re
 MVP album import MUST include direct children only and MUST NOT recursively scan subfolders.
 
 ### DRIVE-011
-MVP gallery import MUST accept JPEG, PNG, and WebP images and MUST report skipped unsupported files.
+MVP gallery import MUST recognize JPEG/JFIF, PNG/APNG, WebP, AVIF, GIF, HEIC/HEIF/HIF, TIFF, DNG, CR2/CR3, NEF/NRW, ARW, RAF, ORF, RW2, and PEF sources and MUST report skipped unrecognized files.
 
 ### DRIVE-012
 The workspace architecture SHOULD support create, rename, move, trash/delete, and upload operations; the MVP implements only operations named in `MVP_SCOPE.md`.
@@ -77,6 +82,15 @@ Safe transient Drive errors SHOULD use bounded exponential backoff with jitter; 
 
 ### DRIVE-015
 The system MUST expose Drive quota and authorization failures as actionable errors without leaking credentials.
+
+### DRIVE-016
+Source-format classification from Drive filename or MIME metadata MUST be treated as discovery only. The processing boundary MUST verify file content before invoking a decoder.
+
+### DRIVE-017
+When the deployed decoder does not support a recognized camera model, codec variant, or source structure, the system MUST retain the indexed photo and expose an actionable per-photo processing state instead of failing the complete album sync.
+
+### DRIVE-018
+Generated thumbnails and previews MUST be tied to a Drive source revision or equivalent content identity and MUST be invalidated when the source content changes.
 
 ## Metadata and database
 
@@ -198,6 +212,12 @@ Full-resolution images MUST NOT be proxied through the API by default.
 ### IMG-005
 The image abstraction MUST allow a future CDN/object-storage provider without rewriting gallery components.
 
+### IMG-006
+Sources that are not reliably browser-displayable MUST be represented by a generated browser-safe thumbnail and preview while the original remains in Google Drive.
+
+### IMG-007
+Public derivatives MUST apply source orientation, use an explicitly selected browser-safe color profile, and exclude sensitive source metadata such as GPS unless a later requirement explicitly permits it.
+
 ### PERF-001
 Gallery photo APIs MUST use cursor-based pagination or an equivalently stable continuation mechanism.
 
@@ -252,4 +272,3 @@ Database backup/restore, migration rollback, retention, and incident procedures 
 
 ### OPS-004
 External API failures MUST produce actionable user-facing states and safe retry behavior.
-

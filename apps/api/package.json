@@ -1,0 +1,30 @@
+{
+  "name": "@photographer-platform/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../scripts/dev.mjs api",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "preview:batch": "node dist/media/preview-batch-cli.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@photographer-platform/database": "workspace:*",
+    "@photographer-platform/google-drive": "workspace:*",
+    "@photographer-platform/shared": "workspace:*",
+    "express": "^5.0.0",
+    "sharp": "0.35.5",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.0.0"
+  }
+}
